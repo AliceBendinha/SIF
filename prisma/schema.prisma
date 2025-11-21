@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model historico_pesquisa {
+  id                Int        @id @default(autoincrement())
+  usuario_id        Int?
+  termo_pesquisado_ String?    @map("termo_pesquisado ") @db.Char(100)
+  data_pesquisa_    DateTime?  @default(now()) @map("    data_pesquisa ") @db.Timestamptz(6)
+  usuarios_         usuarios_? @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "usuario_id ")
+
+  @@map(" historico_pesquisa")
+}
+
+model estoque_ {
+  id               Int        @id @default(autoincrement())
+  farmacia_id      Int?
+  produto_id_      Int?       @map("produto_id ")
+  preco_           Float      @map("preco ") @db.Real
+  quantidade_      Int?       @default(0) @map("quantidade ")
+  disponibilidade_ Boolean?   @default(true) @map("disponibilidade ")
+  farmacias        farmacias? @relation(fields: [farmacia_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "farmacia_id")
+  produtos         produtos?  @relation(fields: [produto_id_], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "produto_id ")
+
+  @@map("estoque ")
+}
+
+model farmacias {
+  id               Int        @id @default(autoincrement())
+  nome_            String?    @map("nome ") @db.Char(100)
+  endereco_        String?    @map(" endereco ")
+  bairro_          String?    @map(" bairro ") @db.Char(50)
+  telefone         Decimal?   @map(" telefone") @db.Decimal(9, 0)
+  email            String?    @db.Char(100)
+  horario_abertura DateTime?  @db.Timetz(6)
+  horario_fecho_   DateTime?  @map("horario_fecho ") @db.Timetz(6)
+  latitude_        Float?     @map("latitude ") @db.Real
+  longitude_       Float?     @map("longitude ") @db.Real
+  estado_          Boolean?   @map("estado ")
+  estoque_         estoque_[]
+}
+
+model produtos {
+  id         Int        @id @default(autoincrement())
+  nome_      String     @map("nome ") @db.Char(100)
+  marca_     String?    @map("marca ") @db.Char(50)
+  dosagem_   String?    @map("dosagem ") @db.Char(50)
+  categoria_ String?    @map("categoria ") @db.Char(50)
+  descricao_ String?    @map("descricao ")
+  estoque_   estoque_[]
+}
+
+model usuarios_ {
+  id                 Int                  @id
+  nome_              String?              @map("nome ") @db.Char(100)
+  email_             String?              @map("email ") @db.Char(100)
+  senha_             String?              @map("senha ") @db.Char(255)
+  tipo_              String?              @map("tipo ") @db.Char(20)
+  historico_pesquisa historico_pesquisa[]
+
+  @@map("usuarios ")
+}
